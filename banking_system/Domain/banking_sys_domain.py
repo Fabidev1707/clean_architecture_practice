@@ -2,8 +2,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 class Commission(ABC):
+    @property
     @abstractmethod
-    def get_commission_value(self):...
+    def commission_value(self):...
 
     @abstractmethod
     def update_commission_value(self, new_commission:float):...
@@ -17,16 +18,26 @@ class TransferCommission(Commission):
         self.__commision_value=commission_value
 
     @property
-    def get_commission_value(self):
+    def commission_value(self):
         return self.__commision_value
-    
-    #We need to protect this function, just admins can use it, I think we should implement an access key 
-    @get_commission_value.setter
-    def update_commission_value(self, new_commission):
-        self.__commision_value=new_commission
+
+    def update_commission_value(self, new_commission:float):
+        if isinstance(new_commission,float):
+            if new_commission>0:
+                self.__commision_value=new_commission
+            else:
+                raise ValueError("The commission value can not be fewer than 0!")
+        else:
+            raise TypeError("The commission value must be a number")
 
     def calculate_commission(self, amount):
-        return self.get_commission_value*amount
+        if isinstance(amount,float):
+            if amount>0:
+                return self.__commision_value*amount
+            else:
+                raise ValueError("The amount value can not be fewer than 0!")
+        else:
+            raise TypeError("The amount value must be a number")
 
 class Currency():
     def __init__(self, bunch_of_cunrrencies:dict):
@@ -68,7 +79,7 @@ class MinimumWithdraw():
             return self.get_minimum_withdrawals["USD"]
 
 class AccountNumber():
-    #We know this is not the correct way to create an accounto number or number card, this is just a practice. 
+    #We know this is not the correct way to create an account number or number card but this is just a practice. 
     def __init__(self, prefix:str, counter:int):
         self.prefix=prefix
         self.counter=counter
@@ -97,6 +108,7 @@ class FinancialActivityId():
     def get_counter(self):
         return self.__counter
 
+    @property
     def get_id(self):
         try:
             transaction_id="-".join((self.__prefix,str(self.__counter)))
