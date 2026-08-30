@@ -1,58 +1,124 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-class Bank ():
-    #Class virables
-    transfer_commission=.10
-    minimum_withdraw={"MX":50, "USD":20, "ARS":1000, "CLP":1000, "COP":10000}
-    transaction_counter=0
-    bunch_currency={"MEX":"MX", "USA":"USD", "AR":"ARS", "CHL":"CLP", "COL":"COP"}
+class Commission(ABC):
+    @property
+    @abstractmethod
+    def commission_value(self):...
 
-    #Class methods 
-    @classmethod
-    def update_transfer_commision(cls, new_commision:float) -> None:
-        cls.transfer_commission=new_commision
+    @abstractmethod
+    def update_commission_value(self, new_commission:float):...
 
-    @classmethod
-    def update_minimum_withdraw(cls, new_minimum_withdraw:float) -> None:
-        cls.minimum_withdraw=new_minimum_withdraw
+    @abstractmethod
+    def calculate_commission(self, amount:float):...
 
-    @classmethod
-    def update_transaction_counter(cls,new_cunter_value:int) -> None:
-        cls.transaction_counter=new_cunter_value
-    
-    @classmethod
-    def add_currency(cls, country:str, currency:str) -> None:
-        cls.bunch_currency[country]=currency
 
-    @classmethod
-    def get_initial_balance_by_currency(cls, currency:str) -> float:
-        if currency in cls.minimum_withdraw.keys():
-            return cls.minimum_withdraw[currency]*2
+class TransferCommission(Commission):
+    def __init__(self, commission_value:float):
+        self.__commision_value=commission_value
+
+    @property
+    def commission_value(self):
+        return self.__commision_value
+
+    def update_commission_value(self, new_commission:float):
+        if isinstance(new_commission,float):
+            if new_commission>0:
+                self.__commision_value=new_commission
+            else:
+                raise ValueError("The commission value can not be fewer than 0!")
         else:
-            return cls.minimum_withdraw['USD']*2
-    
-    @classmethod
-    def get_currency_by_country(cls, country:str):
-        if country in cls.bunch_currency.keys():
-            return cls.bunch_currency[country]
+            raise TypeError("The commission value must be a number")
+
+    def calculate_commission(self, amount):
+        if isinstance(amount,float):
+            if amount>0:
+                return self.__commision_value*amount
+            else:
+                raise ValueError("The amount value can not be fewer than 0!")
         else:
-            return cls.bunch_currency["USA"]
+            raise TypeError("The amount value must be a number")
+
+class Currency():
+    def __init__(self, bunch_of_cunrrencies:dict):
+        self.__currencies=bunch_of_cunrrencies
+
+    @property
+    def get_bunch_of_currencies(self):
+        return self.__currencies
+
+    #We need to protect this function and of course add more validations
+    @get_bunch_of_currencies.setter
+    def insert_new_currency(self, country:str, currency:str):
+        self.get_bunch_of_currencies[country]=currency
+
+    def get_currency_by_country(self, country:str):
+        if country in self.get_bunch_of_currencies.keys():
+            return self.get_bunch_of_currencies[country]
+        else:
+            return self.get_bunch_of_currencies["USA"] 
         
-    @classmethod    
-    def get_minimum_withdraw_by_currency(cls, currency:str):
-        if currency in cls.minimum_withdraw.keys():
-            return cls.minimum_withdraw[currency]
+
+class MinimumWithdraw():
+    def __init__(self, bunch_of_minimum_values:dict):
+        self.__minimum_withdrawals=bunch_of_minimum_values
+
+    @property
+    def get_minimum_withdrawals(self):
+        return self.__minimum_withdrawals
+
+    #We need to protect this function and of course add more validations
+    @get_minimum_withdrawals.setter
+    def insert_new_minimum(self, currency:str, currency_value:float):
+        self.get_minimum_withdrawals[currency]=currency_value
+
+    def get_minimum_by_currency(self, currency):
+        if currency in self.get_minimum_withdrawals.keys():
+            return self.get_minimum_withdrawals[currency]
         else:
-            return cls.minimum_withdraw["USD"]
-        
-    @classmethod    
-    def transfer_commission_calculer(cls, amount:float) -> float:
-        return amount*cls.transfer_commission
-    
-    @staticmethod
-    def account_number_generator(counter:int):
-        return "".join(["XXXXXXXXXXXX",str(counter)])
+            return self.get_minimum_withdrawals["USD"]
+
+class AccountNumber():
+    #We know this is not the correct way to create an account number or number card but this is just a practice. 
+    def __init__(self, prefix:str, counter:int):
+        self.prefix=prefix
+        self.counter=counter
+
+    def get_account_number(self):
+        try:
+            account_number="".join([self.prefix,str(self.counter)])
+            return account_number
+        except ValueError:
+            print("\nThe counter must be an int type!")
+            return None
+        except Exception:
+            print("\nSomething went wrong!")
+            return None
+
+class FinancialActivityId():
+    def __init__(self, prefix:str, counter:int):
+        self.__prefix=prefix
+        self.__counter=counter
+
+    @property
+    def get_prefix(self):
+        return self.__prefix
+
+    @property
+    def get_counter(self):
+        return self.__counter
+
+    @property
+    def get_id(self):
+        try:
+            transaction_id="-".join((self.__prefix,str(self.__counter)))
+            return transaction_id
+        except ValueError:
+            print("\nThe counter must be an int type!")
+            return None
+        except Exception:
+            print("\nSomething went wrong!")
+            return None
 
 class User (): 
     #Instance variables
@@ -141,17 +207,6 @@ class Transaction ():
         self.__recipient_account=recipient_account
     
     #Instance methods
-    def __id_generator(self) ->str:
-        try:
-            transaction_id="-".join(("TRX",str(self.__transaction_counter)))
-            return transaction_id
-        except ValueError:
-            print("\nThe acction counter must be an int type!")
-            return None
-        except Exception:
-            print("\nSomething went wrong!")
-            return None
-
     @property
     def id_transaction(self):
         id=self.__id_generator()
@@ -214,18 +269,6 @@ class Movement():
         self.__current_balance=current_balance
         self.__description=description
         self.__transaction_reference=transaction_reference
-
-    def __id_generator(self):
-        try:
-            movement_id_str= "-".join(("MOV",str(self.__counter_id)))
-        except ValueError:
-            print("\nThe movement counter must be an int type")
-            return None
-        except Exception:
-            print("\nSomething went wrong!")
-            return None
-        
-        return movement_id_str
 
     @property
     def id(self):
