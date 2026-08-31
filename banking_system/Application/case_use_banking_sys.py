@@ -95,3 +95,5 @@ class UpdateTransferCommssionCaseUse():
 
     def update_commission(self, new_commission:float):
         self.transafer_commission.update_commission_value(new_commission)
+
+    #We need to implement a repository for commissions
