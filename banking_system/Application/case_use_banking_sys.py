@@ -1,4 +1,4 @@
-from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement
+from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement, TransferCommission
 from Repository.bank_repository import BankRepository
 from Repository.database import user_dict, account_dict, history_transaction, history_movement
 
@@ -89,3 +89,9 @@ class CaseUseGetHistory():
             print("You do not have movements stored yet!")
             print(f"{'*'*40}")
 
+class UpdateTransferCommssionCaseUse():
+    def __init__(self, transfer_commission:TransferCommission):
+        self.transafer_commission=transfer_commission
+
+    def update_commission(self, new_commission:float):
+        self.transafer_commission.update_commission_value(new_commission)
