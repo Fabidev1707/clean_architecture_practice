@@ -3,3 +3,4 @@ user_dict={}
 account_dict={}
 history_transaction={}
 history_movement={}
+bunch_of_commissions={}
