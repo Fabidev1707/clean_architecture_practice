@@ -1,5 +1,5 @@
 from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement, TransferCommission
-from Repository.bank_repository import BankRepository
+from Repository.bank_repository import BankRepository, TransferCommissionRepository
 from Repository.database import user_dict, account_dict, history_transaction, history_movement
 
 class CaseUseRegisterUser():
@@ -90,10 +90,15 @@ class CaseUseGetHistory():
             print(f"{'*'*40}")
 
 class UpdateTransferCommssionCaseUse():
-    def __init__(self, transfer_commission:TransferCommission):
+    def __init__(self, transfer_commission:TransferCommission, repository:TransferCommissionRepository):
         self.transafer_commission=transfer_commission
+        self.repository=repository
 
     def update_commission(self, new_commission:float):
         self.transafer_commission.update_commission_value(new_commission)
+        self.repository.save_commission(self.transafer_commission)
+        
 
-    #We need to implement a repository for commissions
+    # We need to rebuild every use case, because we are increasing the coupling on the methods 
+    # by implementing the wrong way the bank repository, we shoul implement it as parameter on the 
+    # init function.
