@@ -1,4 +1,4 @@
-from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement
+from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement, TransferCommission
 
 class BankRepository(): #Simulación de queries que se harían a una base de datos real. 
     #Instance variables
@@ -133,4 +133,17 @@ class BankRepository(): #Simulación de queries que se harían a una base de dat
             print(f"New balance: {movement['current_balance']:,.2f} {movement['currency']}")
             print(f"Movement description: {movement['description']}") 
             print(f"Transaction reference: {movement['transaction_reference']}")
-            print(f"{'-'*40}\n")    
+            print(f"{'-'*40}\n")
+
+#We´re going to build a new class that acceses to the database, a new repository called CommissionRepository  
+
+class TransferCommissionRepository():
+    def __init__(self, commission_db:dict):
+        self.__commission_db=commission_db
+
+    @property
+    def get_commission(self):
+        return self.__commission_db
+
+    def save_commission(self, commission:TransferCommission):
+        self.__commission_db['transfer_commission']=commission.commission_value
