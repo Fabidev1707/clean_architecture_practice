@@ -2,17 +2,18 @@ from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement
 from Repository.bank_repository import BankRepository, TransferCommissionRepository
 from Repository.database import user_dict, account_dict, history_transaction, history_movement
 
-class CaseUseRegisterUser():
-    def register_user(user_name:str, user_email:str, user_country:str):
-        user=User(user_name, user_email, user_country)
-        bank_repository=BankRepository(user_dict, account_dict, history_transaction, history_movement)
+class RegisterUserUseCase():
+    def __init__(self, user:User, repository:BankRepository):
+        self.__user=user
+        self.__repository=repository
 
-        bank_repository.save_user(user)
+    def register_user(self):
+        self.__repository.save_user(self.__user)
+        return self.__user
 
-        return user
-
-class CaseUseRegisterAccount():
-    def register_account(account_counter:int, user_password:str, user:User):
+#We must implement the creator principal to assign the responsability to create an account
+class RegisterAccountUseCase():
+    def register_account(account:Account, repository:BankRepository):
         bank_repository=BankRepository(user_dict, account_dict, history_transaction, history_movement)
 
         account_number=Bank.account_number_generator(account_counter)
