@@ -1,41 +1,20 @@
-from Domain.banking_sys_domain import Bank, User, Account, Transaction, Movement, TransferCommission
+from Domain.banking_sys_domain import User, Account, Transaction, Movement, TransferCommission
 
-class BankRepository(): #Simulación de queries que se harían a una base de datos real. 
-    #Instance variables
-    def __init__(self, user_db:dict, account_db:dict, transaction_db:dict, movoment_db:dict):
+class UserRepository():
+    def __init__(self, user_db:dict):
         self.__user_db=user_db
-        self.__account_db=account_db
-        self.__transaction_db=transaction_db
-        self.__movement_db=movoment_db
 
     @property
     def user(self):
         return self.__user_db
     
-    @property
-    def transaction(self):
-        return self.__transaction_db
-
-    @property
-    def movement(self):
-        return self.__movement_db
-
     def get_user_by_email(self, email:str) -> dict|bool:
             if email in self.__user_db.keys():
                 return self.__user_db[email]
             else:
                 print("That user does not exist!")
                 return False
-
-    def get_account_by_password(self, account_number, password) -> dict|bool:
-                if account_number in self.__account_db.keys():
-                    if self.__account_db[account_number]["password"]==password:
-                        return self.__account_db[account_number]
-                    else:
-                        return False
-                else:
-                    return False
-
+            
     def save_user(self, user:User):
         if user.email in self.__user_db.keys():
             print("\nThat email is alredy used")
@@ -52,6 +31,19 @@ class BankRepository(): #Simulación de queries que se harían a una base de dat
                 print(e)
                 print("\nSomething went wrong registing your user! Please try again")
 
+class AccountRepository():
+    def __init__(self, account_db:dict):
+        self.__account_db=account_db
+
+    def get_account_by_password(self, account_number, password) -> dict|bool:
+                if account_number in self.__account_db.keys():
+                    if self.__account_db[account_number]["password"]==password:
+                        return self.__account_db[account_number]
+                    else:
+                        return False
+                else:
+                    return False
+                
     def save_account(self, user_account:Account):
         try:
             self.__account_db[user_account.account_number]={
@@ -65,6 +57,14 @@ class BankRepository(): #Simulación de queries que se harían a una base de dat
         except Exception:
             print("\nSomething went wrong!")
 
+class TransactionRepository():
+    def __init__(self, transaction_db:dict):
+        self.__transaction_db=transaction_db
+
+    @property
+    def transaction(self):
+        return self.__transaction_db
+    
     def save_transaction(self, transaction:Transaction) -> str|None:
         try:
             transaction_detail={
@@ -88,6 +88,14 @@ class BankRepository(): #Simulación de queries que se harían a una base de dat
             print("\nSomething went wrong registing history transaction!\n")
         
         return transaction.id_transaction
+
+class MovementRepository():
+    def __init__(self, movement_db:dict):
+        self.__movement_db=movement_db
+
+    @property
+    def movement(self):
+        return self.__movement_db
 
     def save_movement(self, movement:Movement) -> bool|None:
         try:
